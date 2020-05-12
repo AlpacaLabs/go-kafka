@@ -1,27 +1,22 @@
 package kafka
 
 import (
-	"fmt"
-
 	"github.com/segmentio/kafka-go"
 )
 
-type GetReaderInput struct {
-	Host    string
-	Port    int
-	GroupID string
-	Topic   string
+type getReaderInput struct {
+	brokers []string
+	groupID string
+	topic   string
 }
 
-func GetReader(in GetReaderInput) (*kafka.Reader, func() error) {
-	host := in.Host
-	port := in.Port
-	groupID := in.GroupID
-	topic := in.Topic
+func getReader(in getReaderInput) (reader *kafka.Reader, closer func() error) {
+	brokers := in.brokers
+	groupID := in.groupID
+	topic := in.topic
 
-	broker := fmt.Sprintf("%s:%d", host, port)
-	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: []string{broker},
+	reader = kafka.NewReader(kafka.ReaderConfig{
+		Brokers: brokers,
 
 		// If GroupID is specified, then Partition should NOT be specified
 		GroupID: groupID,
@@ -32,5 +27,5 @@ func GetReader(in GetReaderInput) (*kafka.Reader, func() error) {
 		// polling the brokers and rebalancing if any partition changes happen to the topic.
 		WatchPartitionChanges: true,
 	})
-	return r, r.Close
+	return reader, reader.Close
 }

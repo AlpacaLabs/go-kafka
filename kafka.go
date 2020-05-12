@@ -3,11 +3,22 @@ package kafka
 import (
 	"context"
 	"fmt"
-
-	"github.com/segmentio/kafka-go"
 )
 
-func ProcessKafkaMessages(ctx context.Context, reader *kafka.Reader, fn func(context.Context, kafka.Message) error) error {
+type ProcessKafkaMessagesInput struct {
+	Brokers []string
+	GroupID string
+	Topic   string
+}
+
+func ProcessKafkaMessages(ctx context.Context, in ProcessKafkaMessagesInput, fn func(context.Context, Message) error) error {
+	reader, closer := getReader(getReaderInput{
+		brokers: in.Brokers,
+		groupID: in.GroupID,
+		topic:   in.Topic,
+	})
+	defer closer()
+
 	for {
 		// FetchMessage does not commit offsets automatically when using consumer groups.
 		// The method returns io.EOF to indicate that the reader has been closed.
@@ -16,7 +27,7 @@ func ProcessKafkaMessages(ctx context.Context, reader *kafka.Reader, fn func(con
 			return fmt.Errorf("failed to read kafka message: %w", err)
 		}
 
-		if err := fn(ctx, m); err != nil {
+		if err := fn(ctx, fromMessage(m)); err != nil {
 			return fmt.Errorf("failed to process kafka message: %w", err)
 		}
 
