@@ -1,3 +1,5 @@
+github.com/AlpacaLabs/protorepo-event-go v0.0.0-20200517012157-817122666c68 h1:YGHw7PW+cA8Ovm1mNLbzFqtKQRrpZILKWzx5Gw9S/wE=
+github.com/AlpacaLabs/protorepo-event-go v0.0.0-20200517012157-817122666c68/go.mod h1:pfwk4ZcgrqgP4FbUtvI771kwyfTYhhGiSix1qktvw8A=
 github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21 h1:YEetp8/yCZMuEPMUDHG0CW/brkkEp8mzqk2+ODEitlw=
 github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21/go.mod h1:+020luEh2TKB4/GOp8oxxtq0Daoen/Cii55CzbTV6DU=
 github.com/golang/protobuf v1.4.0-rc.1/go.mod h1:ceaxUfeHdC40wWswd/P6IGgMaK3YpKi5j83Wpe3EHw8=
