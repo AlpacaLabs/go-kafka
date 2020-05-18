@@ -68,6 +68,10 @@ func (m Message) GetString(key string) (string, error) {
 	return "", fmt.Errorf("no message header found for key: %s", key)
 }
 
+func (m Message) GetEventID() (string, error) {
+	return m.GetString(HeaderForEventID)
+}
+
 func (m Message) Unmarshal(pb proto.Message) error {
 	return proto.Unmarshal(m.Payload, pb)
 }
