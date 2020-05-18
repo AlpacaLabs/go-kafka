@@ -2,6 +2,7 @@ package kafka
 
 import (
 	"fmt"
+	"strconv"
 
 	eventV1 "github.com/AlpacaLabs/protorepo-event-go/alpacalabs/event/v1"
 
@@ -11,6 +12,7 @@ import (
 
 const (
 	HeaderForTraceID = "trace_id"
+	HeaderForSampled = "sampled"
 	HeaderForEventID = "event_id"
 )
 
@@ -30,6 +32,7 @@ func NewMessage(traceInfo eventV1.TraceInfo, eventInfo eventV1.EventInfo, pb pro
 	m.Payload = b
 
 	m.Headers[HeaderForTraceID] = []byte(traceInfo.TraceId)
+	m.Headers[HeaderForSampled] = []byte(strconv.FormatBool(traceInfo.Sampled))
 	m.Headers[HeaderForEventID] = []byte(eventInfo.EventId)
 
 	return m, nil
@@ -68,8 +71,42 @@ func (m Message) GetString(key string) (string, error) {
 	return "", fmt.Errorf("no message header found for key: %s", key)
 }
 
-func (m Message) GetEventID() (string, error) {
-	return m.GetString(HeaderForEventID)
+func (m Message) GetBool(key string) (bool, error) {
+	s, err := m.GetString(key)
+	if err != nil {
+		return false, err
+	}
+	b, err := strconv.ParseBool(s)
+	if err != nil {
+		return false, fmt.Errorf("failed to parse bool for key: %s: %w", key, err)
+	}
+	return b, nil
+}
+
+func (m Message) GetTraceInfo() (traceInfo eventV1.TraceInfo, err error) {
+	if traceID, err := m.GetString(HeaderForTraceID); err != nil {
+		return traceInfo, err
+	} else {
+		traceInfo.TraceId = traceID
+	}
+
+	if sampled, err := m.GetBool(HeaderForSampled); err != nil {
+		return traceInfo, err
+	} else {
+		traceInfo.Sampled = sampled
+	}
+
+	return traceInfo, err
+}
+
+func (m Message) GetEventInfo() (eventInfo eventV1.EventInfo, err error) {
+	if eventID, err := m.GetString(HeaderForEventID); err != nil {
+		return eventInfo, err
+	} else {
+		eventInfo.EventId = eventID
+	}
+
+	return eventInfo, err
 }
 
 func (m Message) Unmarshal(pb proto.Message) error {
