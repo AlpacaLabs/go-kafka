@@ -21,15 +21,12 @@ type Message struct {
 	Payload []byte
 }
 
-func NewMessage(traceInfo eventV1.TraceInfo, eventInfo eventV1.EventInfo, pb proto.Message) (Message, error) {
+func NewMessage(traceInfo eventV1.TraceInfo, eventInfo eventV1.EventInfo, payload []byte) (Message, error) {
 	m := Message{
 		Headers: make(map[string][]byte),
 	}
-	b, err := proto.Marshal(pb)
-	if err != nil {
-		return Message{}, err
-	}
-	m.Payload = b
+
+	m.Payload = payload
 
 	m.Headers[HeaderForTraceID] = []byte(traceInfo.TraceId)
 	m.Headers[HeaderForSampled] = []byte(strconv.FormatBool(traceInfo.Sampled))
